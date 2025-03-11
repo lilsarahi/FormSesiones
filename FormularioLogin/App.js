@@ -7,23 +7,49 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Guardar sesión
-const SaveSession = async (token) => {
-  await AsyncStorage.setItem('userToken', token);
-}
+const saveSession = async (token) => {
+  try {
+    await AsyncStorage.setItem('userToken', token);
+    console.log('Sesión guardada');
+  } catch (error) {
+    console.error('Error al guardar la sesión:', error);
+  }
+};
 
-// Recuperar sesión
+// Obtener sesión
 const getSession = async () => {
-  return await AsyncStorage.getItem('userToken');
-}
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    return token;
+  } catch (error) {
+    console.error('Error al obtener la sesión:', error);
+  }
+};
 
-// Eliminar sesión
+// Cerrar sesión
 const removeSession = async () => {
-  return await AsyncStorage.removeItem('userToken');
-}
+  try {
+    await AsyncStorage.removeItem('userToken');
+    console.log('Sesión eliminada');
+  } catch (error) {
+    console.error('Error al eliminar la sesión:', error);
+  }
+};
+
+// const manejarSesion = async () => {
+//   await saveSession('abc123'); // Guardar token de sesión
+//   const token = await getSession(); // Recuperar token
+//   console.log('Token recuperado:', token);
+//   await removeSession(); // Eliminar sesión
+// };
+
+// manejarSesion();
+
 
 const generateToken = () => {
-  return Math.random().toString(36).substring(2); 
+  return Math.random().toString(36).substring(2);
 }
+
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -38,8 +64,7 @@ const LoginForm = ({ navigation }) => {
   const handleSubmit = async (values) => {
     const token = generateToken(); 
 
-    await SaveSession(token);
-    console.log('Sesión guardada:', token);
+    await saveSession(token);
     console.log('Valores enviados:', values);
 
     navigation.navigate('Inicio');
@@ -84,7 +109,6 @@ const Inicio = ({ navigation }) => {
 
   useEffect(() => {
     const fetchToken = async () => {
-      //const storedToken = await AsyncStorage.getItem('userToken');
       const storedToken = await getSession();
       setToken(storedToken);
     };
@@ -93,7 +117,6 @@ const Inicio = ({ navigation }) => {
   }, []);
 
   const handleLogout = async () => {
-    //await AsyncStorage.removeItem('userToken');
     await removeSession();
     navigation.navigate('Login'); 
   };
